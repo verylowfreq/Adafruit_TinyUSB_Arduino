@@ -29,6 +29,7 @@
 
 #include "Arduino.h"
 #include "arduino/Adafruit_USBD_Device.h"
+#include "arduino/Adafruit_USBH_host.h"
 
 //--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
@@ -58,7 +59,7 @@ USBWakeUp_IRQHandler(void) {
 #endif
 
 // USBFS
-#if CFG_TUD_WCH_USBIP_USBFS
+#if CFG_TUD_WCH_USBIP_USBFS || defined(CFG_TUH_ENABLED) && CFG_TUH_ENABLED
 
 #if defined(CH32V10x) || defined(CH32V20x)
 
@@ -67,12 +68,20 @@ USBWakeUp_IRQHandler(void) {
 #endif
 
 __attribute__((interrupt("WCH-Interrupt-fast"))) void USBHD_IRQHandler(void) {
+#if defined(CFG_TUH_ENABLED) && CFG_TUH_ENABLED
+  tuh_int_handler(0);
+#else
   tud_int_handler(0);
+#endif
 }
 
 __attribute__((interrupt("WCH-Interrupt-fast"))) void
 USBHDWakeUp_IRQHandler(void) {
+#if defined(CFG_TUH_ENABLED) && CFG_TUH_ENABLED
+  tuh_int_handler(0);
+#else
   tud_int_handler(0);
+#endif
 }
 #endif
 
@@ -96,6 +105,9 @@ void yield(void) {
   if (tud_cdc_connected()) {
     tud_cdc_write_flush();
   }
+#if defined(CFG_TUH_ENABLED) && CFG_TUH_ENABLED
+  tuh_task();
+#endif
 }
 }
 
@@ -148,7 +160,7 @@ void TinyUSB_Port_InitDevice(uint8_t rhport) {
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
 #endif
 
-#if CFG_TUD_WCH_USBIP_USBFS
+#if CFG_TUD_WCH_USBIP_USBFS || (defined(CFG_TUH_ENABLED) && CFG_TUH_ENABLED)
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_OTG_FS, ENABLE);
 #endif
 #endif
@@ -164,6 +176,10 @@ void TinyUSB_Port_InitDevice(uint8_t rhport) {
 #endif
 
   tud_init(rhport);
+  
+#if defined(CFG_TUH_ENABLED) && CFG_TUH_ENABLED
+  tuh_init(rhport);
+#endif
 }
 
 void TinyUSB_Port_EnterDFU(void) {

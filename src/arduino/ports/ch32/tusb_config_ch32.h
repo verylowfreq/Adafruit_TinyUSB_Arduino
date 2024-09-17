@@ -58,6 +58,12 @@ extern "C" {
 
 #define CFG_TUD_ENABLED 1
 
+// Enable USB Host on CH32V20x
+#if CFG_TUSB_MCU == OPT_MCU_CH32V20X
+#define CFG_TUH_ENABLED 1
+#define CFG_TUH_WCH_USBIP_USBFS 1
+#endif
+
 // #ifdef USE_TINYUSB
 //// Enable device stack
 // #define CFG_TUD_ENABLED 1
@@ -135,7 +141,7 @@ extern "C" {
 //--------------------------------------------------------------------
 // Host Configuration
 //--------------------------------------------------------------------
-#if 0
+#if defined(CFG_TUD_ENABLED) && CFG_TUD_ENABLED
 // Size of buffer to hold descriptors and other data used for enumeration
 #define CFG_TUH_ENUMERATION_BUFSIZE 256
 
@@ -146,7 +152,7 @@ extern "C" {
 #define CFG_TUH_DEVICE_MAX (3 * CFG_TUH_HUB + 1)
 
 // Enable tuh_edpt_xfer() API
-// #define CFG_TUH_API_EDPT_XFER       1
+#define CFG_TUH_API_EDPT_XFER       1
 
 // Number of mass storage
 #define CFG_TUH_MSC 1
