@@ -36,7 +36,7 @@
 #include "Adafruit_USBH_CDC.h"
 
 Adafruit_USBH_CDC::Adafruit_USBH_CDC(void)
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_CH32)
     : HardwareSerial(0)
 #endif
 {
