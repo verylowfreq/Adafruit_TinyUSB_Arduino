@@ -58,12 +58,6 @@ extern "C" {
 
 #define CFG_TUD_ENABLED 1
 
-// Enable USB Host on CH32V20x
-#if CFG_TUSB_MCU == OPT_MCU_CH32V20X
-#define CFG_TUH_ENABLED 1
-#define CFG_TUH_WCH_USBIP_USBFS 1
-#endif
-
 // #ifdef USE_TINYUSB
 //// Enable device stack
 // #define CFG_TUD_ENABLED 1
