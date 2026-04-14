@@ -335,7 +335,7 @@ void hcd_port_reset_end(uint8_t rhport) {
   USBOTG_H_FS->HOST_SETUP |= USBFS_UH_SOF_EN;
 
   // Suppress the attached event
-  USBOTG_H_FS->INT_FG |= USBFS_UIF_DETECT;
+  // USBOTG_H_FS->INT_FG |= USBFS_UIF_DETECT;
 
   if (int_state_for_portreset) {
     hcd_int_enable(rhport);
@@ -464,9 +464,9 @@ void hcd_int_handler(uint8_t rhport, bool in_isr) {
     bool attached = hardware_device_attached();
     LOG_CH32_USBFSH("hcd_int_handler() attached = %d\r\n", attached ? 1 : 0);
     if (attached) {
-      hcd_event_device_attach(rhport, true);
+      hcd_event_device_attach(rhport, in_isr);
     } else {
-      hcd_event_device_remove(rhport, true);
+      hcd_event_device_remove(rhport, in_isr);
     }
   }
 
@@ -622,9 +622,6 @@ bool hcd_edpt_open(uint8_t rhport, uint8_t dev_addr, tusb_desc_endpoint_t const 
     TU_ASSERT(edpt != NULL, false);
     edpt->interval = (xfer_type == TUSB_XFER_INTERRUPT) ? ep_desc->bInterval : 0;
   }
-
-  USBOTG_H_FS->HOST_CTRL |= USBFS_UH_PORT_EN;
-  USBOTG_H_FS->HOST_SETUP |= USBFS_UH_SOF_EN;
 
   hardware_set_port_address_speed(dev_addr);
 
