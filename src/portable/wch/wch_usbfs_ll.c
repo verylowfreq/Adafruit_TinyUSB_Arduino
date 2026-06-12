@@ -19,6 +19,9 @@
 /* Header File */
 #include "wch_usbfs_ll.h"
 
+
+#define RCC_AHBPeriph_USBFS    RCC_AHBPeriph_OTG_FS
+
 /*******************************************************************************/
 /* Variable Definition */
 __attribute__((aligned(4))) uint8_t  USBFS_RX_Buf[ USBFS_MAX_PACKET_SIZE ];     // IN, must even address
@@ -224,13 +227,13 @@ void USBFSH_ResetRootHubPort( uint8_t mode )
     }
     if( mode == 0 )
     {
-        Delay_Ms( DEF_BUS_RESET_TIME ); // Reset time from 10mS to 20mS
+        __Delay_Ms( DEF_BUS_RESET_TIME ); // Reset time from 10mS to 20mS
     }
     if( mode != 1 )
     {
         USBFSH->HOST_CTRL &= ~USBFS_UH_BUS_RESET; // End reset
     }
-    Delay_Ms( 2 );
+    __Delay_Ms( 2 );
 
     if( USBFSH->INT_FG & USBFS_UIF_DETECT )
     {
@@ -295,7 +298,7 @@ uint8_t USBFSH_Transact( uint8_t endp_pid, uint8_t endp_tog, uint32_t timeout )
         USBFSH->INT_FG = USBFS_UIF_TRANSFER; // Allow transfer
         for( i = DEF_WAIT_USB_TRANSFER_CNT; ( i != 0 ) && ( ( USBFSH->INT_FG & USBFS_UIF_TRANSFER ) == 0 ); i-- )
         {
-            Delay_Us( 1 ); // Delay for USB transfer
+            __Delay_Us( 1 ); // Delay for USB transfer
         }
         USBFSH->HOST_EP_PID = 0x00; // Stop transfer
 
@@ -354,11 +357,11 @@ uint8_t USBFSH_Transact( uint8_t endp_pid, uint8_t endp_tog, uint32_t timeout )
                     return ERR_USB_UNKNOWN;
             }
         }
-        Delay_Us( 20 );
+        __Delay_Us( 20 );
 
         if( USBFSH->INT_FG & USBFS_UIF_DETECT )
         {
-            Delay_Us( 200 );
+            __Delay_Us( 200 );
 
             if( USBFSH_CheckRootHubPortEnable( ) == 0x00 )
             {
@@ -390,7 +393,7 @@ uint8_t USBFSH_CtrlTransfer( uint8_t ep0_size, uint8_t *pbuf, uint16_t *plen )
     uint8_t  s;
     uint16_t rem_len, rx_len, rx_cnt, tx_cnt;
 
-    Delay_Us( 100 );
+    __Delay_Us( 100 );
     if( plen )
     {
         *plen = 0;
@@ -412,7 +415,7 @@ uint8_t USBFSH_CtrlTransfer( uint8_t ep0_size, uint8_t *pbuf, uint16_t *plen )
             /* Receive data */
             while( rem_len )
             {
-                Delay_Us( 100 );
+                __Delay_Us( 100 );
                 s = USBFSH_Transact( ( USB_PID_IN << 4 ) | 0x00, USBFSH->HOST_RX_CTRL, DEF_CTRL_TRANS_TIMEOVER_CNT );  // IN
                 if( s != ERR_SUCCESS )
                 {
@@ -444,7 +447,7 @@ uint8_t USBFSH_CtrlTransfer( uint8_t ep0_size, uint8_t *pbuf, uint16_t *plen )
             /* Send data */
             while( rem_len )
             {
-                Delay_Us( 100 );
+                __Delay_Us( 100 );
                 USBFSH->HOST_TX_LEN = ( rem_len >= ep0_size )? ep0_size : rem_len;
                 for( tx_cnt = 0; tx_cnt != USBFSH->HOST_TX_LEN; tx_cnt++ )
                 {
@@ -467,7 +470,7 @@ uint8_t USBFSH_CtrlTransfer( uint8_t ep0_size, uint8_t *pbuf, uint16_t *plen )
         }
     }
 
-    Delay_Us( 100 );
+    __Delay_Us( 100 );
     s = USBFSH_Transact( ( USBFSH->HOST_TX_LEN )? ( USB_PID_IN << 4 | 0x00 ) : ( USB_PID_OUT << 4 | 0x00 ), USBFS_UH_R_TOG | USBFS_UH_T_TOG, DEF_CTRL_TRANS_TIMEOVER_CNT ); // STATUS stage
     if( s != ERR_SUCCESS )
     {

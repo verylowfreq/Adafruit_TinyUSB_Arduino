@@ -22,8 +22,8 @@
 
 // Busy-loop delays (defined in hcd_ch32_usbfs.c) — WCH's debug.h Delay_*
 // uses SysTick, which the TinyUSB BSP already owns; use a NOP busy-loop instead.
-void Delay_Us(uint32_t n);
-void Delay_Ms(uint32_t n);
+void __Delay_Us(uint32_t n);
+void __Delay_Ms(uint32_t n);
 
 #ifdef __cplusplus
 extern "C" {
